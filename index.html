@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambatukam45</title>
+    <style>
+       /* Styling Khusus Pop-Up Jawaban */
+.modal-box.correct {
+    border-top: 8px solid #2ecc71;
+}
+
+.modal-box.incorrect {
+    border-top: 8px solid #e74c3c;
+}
+
+.modal-box h2.correct-title {
+    color: #2ecc71;
+}
+
+.modal-box h2.incorrect-title {
+    color: #e74c3c;
+}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+/* CONTOH: Mengubah warna box utama tempat soal */
+.container {
+    /* Pilihan 1: Warna Putih Transparan Blur (Glassmorphism) */
+    background-color: rgba(255, 255, 255, 0.2); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    /* Pilihan 2: Jika mau warna solid (misal: Hitam/Gelap Transparan) */
+    /* background-color: rgba(0, 0, 0, 0.6); */
+
+    /* Garis tepi tipis agar makin rapi */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 20px;
+}
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #000;
+            margin-bottom: 10px;
+            font-size: 25px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #000;
+            margin-bottom: 10px;
+            font-size: 25px;
+            text-align: center;
+        }
+
+        p.subtitle {
+            color: #fff;
+            margin-bottom: 25px;
+            font-size: 19px;
+            text-align: center;
+        }
+
+        .level-select {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-easy { background-color: #2ecc71; }
+        .btn-medium { background-color: #f39c12; }
+        .btn-hard { background-color: #e74c3c; }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 12px;
+        }
+
+        .question-box {
+            background-color: #ffff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #000;
+            font-weight: 600;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background-color: #edf2f7;
+            color: #2d3748;
+            border: 2px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 15px;
+            min-height: 22px;
+            text-align: center;
+        }
+
+        .score-box {
+            font-size: 48px;
+            margin: 15px 0;
+            color: #ffff00;
+            text-align: center;
+        }
+
+        .result-msg {
+            color: #ffff;
+            font-size: 20px;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+/* Styling untuk Pop-up Selamat Datang */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Latar belakang gelap transparan */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Agar pop-up berada di lapisan paling atas */
+    padding: 20px;
+}
+
+.modal-box {
+    /* 1. Warna latar belakang dibuat transparan (RGBA) */
+    /* Angka 0.25 adalah tingkat transparansi: makin kecil makin transparan (misal 0.15 atau 0.3) */
+    background-color: rgba(255, 255, 255, 0.25); 
+
+    /* 2. Efek Blur untuk latar di belakang kotak */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* Dukungan untuk browser Safari / iOS */
+
+    /* 3. Efek pendukung agar terlihat seperti kaca (Opsional tapi bikin makin keren) */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Garis tepi tipis transparan */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);  /* Bayangan lembut */
+    padding: 30px 25px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    animation: popIn 0.3s ease-out;
+}
+
+.modal-box h2 {
+    color: #000;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.modal-box p {
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 18px;
+    line-height: 1;
+    text-align: center;
+}
+
+/* Animasi membesar saat pop-up muncul */
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+/* Animasi saat pop-up ditutup / mengecil */
+.modal-overlay.fade-out {
+    animation: popOut 0.3s forwards ease-in;
+}
+
+@keyframes popOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.5); /* Mengecil */
+        opacity: 0;           /* Memudar */
+    }
+}
+    </style>
+</head>
+<body>
+<!-- POP-UP SELAMAT DATANG -->
+<div id="welcome-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h2>🎉 WELCOME TO!</h2>
+        <p>Quiz yang sangat keren ini!</p>
+        <button class="btn" onclick="closeModal()">Lanjut 🚀</button>
+    </div>
+</div>
+<!-- POP-UP CONFIRMATION JAWABAN -->
+<div id="answer-modal" class="modal-overlay hidden">
+    <div class="modal-box" id="answer-modal-box">
+        <h2 id="answer-title">BENAR! 🎉</h2>
+        <p id="answer-reason">Penjelasan akan muncul di sini...</p>
+        <button class="btn" id="answer-next-btn" onclick="closeAnswerModal()">Lanjut ke Soal Berikutnya ➡️</button>
+    </div>
+</div>
+    <div class="container">
+        <!-- 1. HALAMAN PILIH LEVEL -->
+        <div id="start-screen">
+            <h1>QUIZ SEDIKIT LUCU:3</h1>
+            <p class="subtitle">Uji seberapa gesrek otakmu dari level santai sampai tidak santai:D
+            
+            <div class="level-select">
+                <button class="btn btn-easy" onclick="startQuiz('easy')">Level Easy 🟢 (Santai)</button>
+
+                <button class="btn btn-medium" onclick="startQuiz('medium')">Level Medium 🟡 (Sedikit Santai)</button>
+                <button class="btn btn-hard" onclick="startQuiz('hard')">Level Hard 🔴 (Tidak Santai)</button>
+            </div>
+        </div>
+
+        <!-- 2. HALAMAN QUIZ -->
+        <div id="quiz-screen" class="hidden">
+            <div class="quiz-header">
+                <span id="level-badge" class="badge">EASY</span>
+                <span>Soal: <span id="current-q">1</span>/<span id="total-q">5</span></span>
+            </div>
+
+            <div class="question-box" id="question-text">
+                Teks pertanyaan akan muncul di sini...
+            </div>
+
+            <div class="options-grid" id="options-container">
+                <!-- Pilihan jawaban dirender lewat JS -->
+            </div>
+
+            <div class="feedback" id="feedback-text"></div>
+        </div>
+
+        <!-- 3. HALAMAN HASIL -->
+        <div id="result-screen" class="hidden">
+            <h2>Hasil Quiz Kamu 🎉</h2>
+            <div class="score-box" id="final-score">0</div>
+            <p class="result-msg" id="result-comment">Komentar hasil...</p>
+            <button class="btn" onclick="resetQuiz()">Main Lagi 🔄</button>
+        </div>
+<audio id="bg-music" loop>
+        <source src="backsound.mp3" type="audio/mpeg">
+    </audio>
+<!-- Backsound khusus setelah klik tombol Lanjut -->
+<audio id="welcome-music" loop>
+    <source src="welcome-bgm.mp3" type="audio/mpeg">
+</audio>
+<!-- AUDIO EFEK JAWABAN BENAR DAN SALAH -->
+<audio id="sound-benar" src="benar.mp3"></audio>
+<audio id="sound-salah" src="salah.mp3"></audio>
+    <script>
+      // ELEMEN DOM POP-UP JAWABAN
+const answerModal = document.getElementById('answer-modal');
+const answerModalBox = document.getElementById('answer-modal-box');
+const answerTitle = document.getElementById('answer-title');
+const answerReason = document.getElementById('answer-reason');
+// Fungsi untuk menutup pop-up dengan animasi mengecil
+function closeModal() {
+    const modal = document.getElementById('welcome-modal');
+    // 1. Ambil elemen audio baru
+    const welcomeMusic = document.getElementById('welcome-music');
+    welcomeMusic.volume = 0.2;
+    welcomeMusic.play();
+    // Tambahkan class animasi mengecil
+    modal.classList.add('fade-out');
+    
+    // Tunggu animasi selesai (300ms) baru benar-benar dihilangkan
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+        // DATA SOAL QUIZ RANDOM & LUCU
+        const questions = {
+            easy: [
+                {
+                    q: "Kera apa yang sangat mengerikan?",
+                    a: ["Kera-kera kesurupan", "Kerambit", "Kerasukan", "Kerajinan tangan"],
+                    correct: 0,
+                    reason: "Kera biasa aja seram, apalagi kalau lagi kesurupan! 😱"
+                },
+                {
+                    q: "Kenapa ayam kalau berkokok matanya meram?",
+                    a: ["Karena dia mengantuk", "Sudah hafal teksnya", "Takut kena debu", "Malau dilihat orang"],
+                    correct: 1,
+                    reason: "Soalnya dia udah nyanyi lagu itu tiap subuh, jd tak perlu buka teks! 🐔"
+                },
+                {
+                    q: "Buah apa yang paling tidak punya sopan santun?",
+                    a: ["Mangga", "Buah Salak", "Buah Naga", "Apel"],
+                    correct: 0,
+                    reason: "Sebab kalau dipanggil 'Mangga...' dia tidak pernah jawab 'Iya...' 🥭"
+                },
+                {
+                    q: "Ayam apa yang paling besar di dunia?",
+                    a: ["Ayam Kampong", "Ayam Semesta", "Ayam Kalkun", "Ayam Fillet"],
+                    correct: 1,
+                    reason: "Jelas Ayam Semesta (Alam Semesta) dong! 🌌"
+                },
+                {
+                    q: "Benda apa yang kalau dipotong malah makin tinggi?",
+                    a: ["Pohon", "Rambut", "Celana Panjang", "Rumput"],
+                    correct: 2,
+                    reason: "Kalau celana dipotong bagian bawahnya, jadi celana tinggi/mengatung kan? 👖"
+                }
+            ],
+            medium: [
+                {
+                    q: "Pintu apa yang tidak bisa didorong oleh 10 orang kekar?",
+                    a: ["Pintu Besi Rahasia", "Pintu Geser", "Pintu Masuk Utang", "Pintu yang Ada Tulisannya 'TARIK'"],
+                    correct: 3,
+                    reason: "Mau didorong sekuat tenaga juga gak bakal terbuka karena harus DITARIK! 🚪"
+                },
+                {
+                    q: "Bebek apa yang kalau jalan selalu nengok ke kiri terus?",
+                    a: ["Bebek dikunci lehernya", "Bebek lagi cari utangan", "Bebek dikunci stang", "Bebek lagi tegang"],
+                    correct: 2,
+                    reason: "Sama kayak motor kalau dikunci stang, jalannya miring terus! 🛵"
+                },
+                {
+                    q: "Kenapa pohon kelapa di depan rumah harus ditebang?",
+                    a: ["Biar tidak rubuh", "Soalnya kalau dicabut keberatan", "Mau bikin es degan", "Biar terang"],
+                    correct: 1,
+                    reason: "Coba aja kalau kuat cabut pohon kelapa pakai tangan kosong! 🌴"
+                },
+                {
+                    q: "Gajah apa yang belalainya pendek banget?",
+                    a: ["Gajah kerdil", "Gajah pesek", "Gajah kena flu", "Gajah miniatur"],
+                    correct: 1,
+                    reason: "Gajah pesek belalainya tidak bisa panjang-panjang! 🐘"
+                },
+                {
+                    q: "Menteri apa yang selalu dipegang-pegang kepala atau bahunya?",
+                    a: ["Menteri Keuangan", "Menteri Catur", "Menteri Luar Negeri", "Menteri Pertahanan"],
+                    correct: 1,
+                    reason: "Pion/Menteri di papan catur kan emang dipegang-pegang mulu kalau main! ♟️"
+                }
+            ],
+            hard: [
+                {
+                    q: "Kalau ada truk membawa batu bata ditabrak mobil balap, yang turun duluan apa?",
+                    a: ["Supir truknya", "Supir mobil balap", "Spidometer", "Batu batanya"],
+                    correct: 2,
+                    reason: "Yang turun duluan itu 'Jarum Spidometer' mobilnya! 🏎️"
+                },
+                {
+                    q: "Batu sebesar rumah dijatuhkan ke laut, jadinya apa?",
+                    a: ["Bencana alam", "Tsunami kecil", "Jadinya basah", "Tenggelam ke dasar"],
+                    correct: 2,
+                    reason: "Ya jadinya BASAH lah, namanya juga dijatuhkan ke air! 🌊"
+                },
+                {
+                    q: "Tahu gak, hewan apa yang namanya cuma terdiri dari 2 huruf?",
+                    a: ["Ulet", "Udang", "U dan G", "Ikan"],
+                    correct: 2,
+                    reason: "'U dan G' (Udang). Cuma 2 huruf kan? U sama G! 🦐"
+                },
+                {
+                    q: "Apa bedanya aksi demo dengan aksi Menara Eiffel?",
+                    a: ["Demo berisik, Eiffel diam", "Demo di jalan, Eiffel di Paris", "Demo bisa tiup peluit, Eiffel gak bisa", "Eiffel jangkung, demo rame-rame"],
+                    correct: 0,
+                    reason: "Kalau demo itu 'Aksi Nyata', kalau Eiffel itu 'Aksi Nyata-nyata' (Akses ke atas tinggi)! 🗼"
+                },
+                {
+                    q: "Kenapa kalau orang melompat dari pesawat pakai parasut selalu melihat ke bawah?",
+                    a: ["Cari tempat mendarat", "Takut nabrak burung", "Kalau lihat ke atas gak kelihatan tanahnya", "Menikmati pemandangan"],
+                    correct: 2,
+                    reason: "Kalau lihat ke atas ya cuma kelihatan kain parasutnya aja dong! 🪂"
+                }
+            ]
+        };
+
+        // VARIABLE STATE
+        let currentLevel = 'easy';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let canAnswer = true;
+
+        // DOM ELEMENTS
+        const startScreen = document.getElementById('start-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const levelBadge = document.getElementById('level-badge');
+        const currentQEl = document.getElementById('current-q');
+        const totalQEl = document.getElementById('total-q');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackText = document.getElementById('feedback-text');
+        const finalScore = document.getElementById('final-score');
+        const resultComment = document.getElementById('result-comment');
+
+        // MULAILAH QUIZ
+        function startQuiz(level) {
+            currentLevel = level;
+            currentQuestionIndex = 0;
+            score = 0;
+// Stop musik pembuka dari pop-up
+    const welcomeMusic = document.getElementById('welcome-music');
+    welcomeMusic.pause();
+    welcomeMusic.currentTime = 0;
+    // backsound
+    const bgMusic = document.getElementById('bg-music');
+    bgMusic.volume = 0.3;
+    bgMusic.play();
+    // =======
+  
+            // Atur Badge Level
+            levelBadge.innerText = level.toUpperCase();
+            if(level === 'easy') levelBadge.style.backgroundColor = '#2ecc71';
+            if(level === 'medium') levelBadge.style.backgroundColor = '#f39c12';
+            if(level === 'hard') levelBadge.style.backgroundColor = '#e74c3c';
+
+            startScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        // TAMPILKAN SOAL
+        function loadQuestion() {
+            canAnswer = true;
+            feedbackText.innerText = "";
+            
+            const list = questions[currentLevel];
+            const qData = list[currentQuestionIndex];
+
+            currentQEl.innerText = currentQuestionIndex + 1;
+            totalQEl.innerText = list.length;
+            questionText.innerText = qData.q;
+
+            optionsContainer.innerHTML = "";
+            qData.a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = `${String.fromCharCode(65 + idx)}. ${opt}`;
+                btn.onclick = () => checkAnswer(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+// --- TIMPA / GANTI FUNGSI checkAnswer YANG LAMA DENGAN INI ---
+    function checkAnswer(selectedIndex) {
+        if (!canAnswer) return;
+        canAnswer = false;
+const soundBenar = document.getElementById('sound-benar');
+    const soundSalah = document.getElementById('sound-salah');
+        const qData = questions[currentLevel][currentQuestionIndex];
+        soundBenar.volume = 0.4;
+    soundSalah.volume = 0.4;
+        // Reset status warna modal box
+        answerModalBox.classList.remove('correct', 'incorrect');
+        answerTitle.classList.remove('correct-title', 'incorrect-title');
+
+        // Reset animasi jika ada
+        answerModal.classList.remove('fade-out');
+
+        if (selectedIndex === qData.correct) {
+            score += 20;
+            soundBenar.currentTime = 0;
+        soundBenar.play();
+            answerTitle.innerText = "BENAR! 🎉";
+            answerTitle.classList.add('correct-title');
+            answerModalBox.classList.add('correct');
+            answerReason.innerText = qData.reason;
+        } else {
+            const jawabanBenarTeks = qData.a[qData.correct];
+            soundSalah.currentTime = 0;
+        soundSalah.play();
+            answerTitle.innerText = "SALAH! ❌";
+            answerTitle.classList.add('incorrect-title');
+            answerModalBox.classList.add('incorrect');
+            answerReason.innerHTML = `Jawaban yang benar: <b>${jawabanBenarTeks}</b><br><br>${qData.reason}`;
+        }
+
+        // Tampilkan pop-up jawaban
+        answerModal.classList.remove('hidden');
+    }
+
+    // --- TEMPEL FUNGSI INI TEPAT DI BAWAH checkAnswer ---
+    function closeAnswerModal() {
+        answerModal.classList.add('fade-out');
+
+        setTimeout(() => {
+            answerModal.classList.add('hidden');
+            answerModal.classList.remove('fade-out');
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions[currentLevel].length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 300);
+    }
+        // HASIL AKHIR
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            finalScore.innerText = score;
+
+const bgMusic = document.getElementById('bg-music');
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+
+            if (score === 100) {
+                resultComment.innerText = "Luar Biasa! Otak kamu fix absurd banget dan sefrekuensi sama pembuat quiz! 🧠🔥";
+            } else if (score >= 60) {
+                resultComment.innerText = "Lumayan lah! Logika kamu masih agak waras, perlu banyak nonton humor absurd lagi. 😆";
+            } else {
+                resultComment.innerText = "Waduh... Otak kamu terlalu polos dan lurus. Jangan terlalu serius dong hidup ini! 🤪";
+            }
+        }
+
+        // RESET GAME
+        function resetQuiz() {
+            resultScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
